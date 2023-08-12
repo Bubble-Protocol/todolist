@@ -12,7 +12,7 @@ const STATES = {
 /**
  * Wrapper for Metamask.  Provides connect, disconnect and deploy contract functions
  */
-export class MetamaskWallet {
+export class Wallet {
 
   state = STATES.disconnected;
   provider;

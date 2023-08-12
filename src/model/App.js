@@ -3,10 +3,8 @@
 // file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 
 import { stateManager } from '../state-context';
-import * as contractSourceCode from './contracts/TodoListBubble.json';
-import { ecdsa } from '@bubble-protocol/crypto';
-import { bubbleProviders, encryptionPolicies, Bubble, toFileId } from '@bubble-protocol/client';
-import { MetamaskWallet } from './MetamaskWallet';
+import { Wallet } from './Wallet';
+import { Session } from './Session';
 
 const APP_ID = 'todo-list-example';
 
@@ -21,21 +19,30 @@ const STATES = {
   failed: 'failed'
 }
 
+
+/**
+ * The TodoListApp class is the entry point for the model. It provides all UI-facing functions
+ * and keeps the UI informed of the application state, task list and any errors via the 
+ * `stateManager`.
+ */
 export class TodoListApp {
 
   state = STATES.closed;
   session;
   wallet;
-  bubble;
-  tasks = [];
 
   constructor() {
-    this.wallet = new MetamaskWallet();
+    // Construct the wallet
+    this.wallet = new Wallet();
+
+    // Register UIstate data
     stateManager.register('state', this.state);
     stateManager.register('error');
     stateManager.register('tasks', []);
+
+    // Register UI functions
     stateManager.register('taskFunctions', {
-      createTask: this.newTask.bind(this),
+      createTask: this.createTask.bind(this),
       toggleDone: this.toggleTask.bind(this),
       deleteTask: this.deleteTask.bind(this)
     });
@@ -45,11 +52,16 @@ export class TodoListApp {
     });
   }
 
-  async connectWallet() {
-    return this.wallet.connect()
+  /**
+   * @dev Connects the wallet and constructs a new Session if successful.
+   * Keeps the UI up-to-date on the state of the app as the Session is initialised.
+   */
+  connectWallet() {
+    this.wallet.connect()
       .then(() => {
-        this._loadState();
-        if (this.session.bubbleId) this._initialiseSession();
+        // Construct a new session. 
+        this.session = new Session(APP_ID, CHAIN, BUBBLE_PROVIDER, this.wallet);
+        if (!this.session.isNew()) this._initialiseSession();
         else this._setState(STATES.new);
       })
       .catch(error => {
@@ -57,6 +69,10 @@ export class TodoListApp {
       })
   }
 
+  /**
+   * @dev To be called when the app state is `new`.  Deploys the contract and constructs the
+   * bubble.  Keeps the UI up-to-date on the state of the app as the Session is initialised.
+   */
   async createTodoList() {
     return this._initialiseSession()
     .catch(error => {
@@ -64,56 +80,57 @@ export class TodoListApp {
     })
   }
 
-  async newTask(text) {
-    const task = {
-      created: Date.now(),
-      text: text,
-      done: false
-    }
-    task.fileId = ecdsa.hash(JSON.stringify(task));
-    return this._saveTask(task)
+  /**
+   * @dev Writes a new task to the bubble. Dispatches the updated task list when complete.
+   */
+  async createTask(text) {
+    return this.session.createTask(text)
       .then(() => {
-        this.tasks.push(task);
-        stateManager.dispatch('tasks', [...this.tasks]);
+        stateManager.dispatch('tasks', [...this.session.getTasks()]);
       })
       .catch(error => {
         stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
       })  
   }
 
+  /**
+   * @dev Toggles a task's 'done' status, writing the task to the bubble. Dispatches the 
+   * updated task list when complete.
+   */
   async toggleTask(task) {
-    task.done = !task.done;
-    return this._saveTask(task)
-    .then(() => {
-      stateManager.dispatch('tasks', [...this.tasks]);
-    })
-    .catch(error => {
-      stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
-    })  
-}
+    return this.session.toggleTask(task)
+      .then(() => {
+        stateManager.dispatch('tasks', [...this.session.getTasks()]);
+      })
+      .catch(error => {
+        stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
+      })  
+  }
 
+  /**
+   * @dev Deletes a task from the bubble. Dispatches the updated task list when complete.
+   */
   async deleteTask(task) {
-    return this.bubble.delete(task.fileId)
-    .then(() => {
-      this.tasks = this.tasks.filter(t => t.fileId !== task.fileId);
-      stateManager.dispatch('tasks', this.tasks);
-    })
-    .catch(error => {
-      stateManager.dispatch('error', new Error('Failed to delete task: '+error.message));
-    })  
+    return this.session.deleteTask(task)
+      .then(() => {
+        stateManager.dispatch('tasks', [...this.session.getTasks()]);
+      })
+      .catch(error => {
+        stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
+      })  
   }
 
-  async _saveTask(task) {
-    console.trace('saving task', task);
-    const taskData = {...task, fileId: undefined};  // don't need to save fileId
-    return this.bubble.write(task.fileId, JSON.stringify(taskData));
-  }
-
+  /**
+   * @dev Initialises the Session, which will deploy the contract and construct the bubble if
+   * they haven't already been created. Keeps the UI up-to-date on the state of the app as the 
+   * Session is initialised.
+   */
   async _initialiseSession() {
     this._setState(STATES.initialising);
-    return this._initialise()
+    return this.session.initialise()
       .then(() => {
         this._setState(STATES.initialised);
+        stateManager.dispatch('tasks', this.session.getTasks())
       })
       .catch(error => {
         console.warn(error);
@@ -122,79 +139,9 @@ export class TodoListApp {
       });
   }
 
-  async _initialise() {
-
-    console.trace('Initialising session');
-
-    if (!this.session || !this.session.key) {
-      console.trace('creating device key');
-      this.session = {
-        key: new ecdsa.Key()
-      };
-      this._saveState();
-    }
-
-    if (!this.session.bubbleId || !this.session.bubbleId.contract) {
-      // contract has not yet been deployed
-      console.trace('deploying contract');
-      const address = await this.wallet.deploy(
-        CHAIN, 
-        contractSourceCode.default.abi, 
-        contractSourceCode.default.bin, 
-        [this.session.key.address]
-      );
-      this.session.bubbleId = {
-        chain: CHAIN,
-        contract: address
-      }
-      this._saveState();
-    }
-
-    const provider = new bubbleProviders.HTTPBubbleProvider(BUBBLE_PROVIDER);
-    const encryptionPolicy = new encryptionPolicies.AESGCMEncryptionPolicy(this.session.key.privateKey);
-
-    if (!this.session.bubbleId.provider) {
-      // bubble has not yet been constructed
-      this.session.bubbleId.provider = BUBBLE_PROVIDER;
-      console.trace('constructing bubble', this.session.bubbleId);
-      this.bubble = new Bubble(this.session.bubbleId, provider, this.session.key.signFunction, encryptionPolicy);
-      await this.bubble.create();
-      this._saveState();
-    }
-    else {
-      this.bubble = new Bubble(this.session.bubbleId, provider, this.session.key.signFunction, encryptionPolicy);
-    }
-
-    console.trace('loading tasks');
-    const taskFiles = await this.bubble.list(toFileId(0));
-    await Promise.all(
-      taskFiles.map(async file => {
-        const json = await this.bubble.read(file.name);
-        const task = JSON.parse(json);
-        task.fileId = file.name;
-        this.tasks.push(task);
-      })
-    )
-
-    console.trace('tasks', this.tasks);
-
-    stateManager.dispatch('tasks', [...this.tasks]);
-
-  }
-
-  _loadState() {
-    const stateJSON = window.localStorage.getItem(APP_ID);
-    const stateData = stateJSON ? JSON.parse(stateJSON) : {};
-    if (stateData.key) stateData.key = new ecdsa.Key(stateData.key);
-    this.session = stateData;
-  }
-
-  _saveState() {
-    const stateData = {...this.session};
-    stateData.key = this.session.key.privateKey;
-    window.localStorage.setItem(APP_ID, JSON.stringify(stateData));
-  }
-
+  /**
+   * @dev Sets the app state and informs the UI
+   */
   _setState(state) {
     this.state = state;
     stateManager.dispatch('state', this.state);
