@@ -1,17 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import UI from './ui/App.js';
+import { TodoListApp } from './model/App.js';
 
+// Config
+const TRACE_ON = true;
+const DEBUG_ON = true;
+
+// Add trace and debug log options
+console.stackTrace = console.trace;
+console.trace = TRACE_ON ? Function.prototype.bind.call(console.info, console, "[trace]") : function() {};
+console.debug = DEBUG_ON ? Function.prototype.bind.call(console.info, console, "[debug]") : function() {};
+
+// Construct the model
+const app = new TodoListApp();
+
+// Render the ui
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <UI app={app} />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
