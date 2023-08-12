@@ -128,6 +128,13 @@ export class Session {
   }
 
   /**
+   * @dev Return the current taskList's bubble id
+   */
+  getBubbleId() {
+    return this.taskList.bubble.contentId;
+  }
+
+  /**
    * @dev Returns `true` if the smart contract has not yet been deployed
    */
   isNew() {

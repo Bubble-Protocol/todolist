@@ -38,6 +38,7 @@ export class TodoListApp {
 
     // Register UIstate data
     stateManager.register('state', this.state);
+    stateManager.register('bubble-id');
     stateManager.register('error');
     stateManager.register('tasks', []);
 
@@ -126,6 +127,7 @@ export class TodoListApp {
   _openSession(account) {
     if (this.session) {
       stateManager.dispatch('tasks', []);
+      stateManager.dispatch('bubble-id');
       stateManager.dispatch('error');
     }
     this.session = new Session(APP_ID+'-'+account.slice(2), CHAIN, BUBBLE_PROVIDER, this.wallet);
@@ -143,6 +145,7 @@ export class TodoListApp {
     return this.session.initialise()
       .then(() => {
         this._setState(STATES.initialised);
+        stateManager.dispatch('bubble-id', this.session.getBubbleId())
         stateManager.dispatch('tasks', this.session.getTasks())
       })
       .catch(error => {

@@ -31,7 +31,9 @@ export class TaskList {
    * @dev Reads the task list from the bubble and initialises the tasks array.
    */
   async initialise() {
-    console.trace('loading tasks');
+    console.trace('initialising task list');
+    console.trace('bubble id:', this.bubble.contentId.toObject());
+    console.trace('bubble id as DID:', this.bubble.contentId.toDID());
     const taskFiles = await this.bubble.list(toFileId(0));
     await Promise.all(
       taskFiles.map(async file => {
