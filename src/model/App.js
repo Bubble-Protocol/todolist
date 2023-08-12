@@ -32,8 +32,9 @@ export class TodoListApp {
   wallet;
 
   constructor() {
-    // Construct the wallet
+    // Construct the wallet and listen for changes to the selected account
     this.wallet = new Wallet();
+    this.wallet.on('account-changed', this._openSession.bind(this));
 
     // Register UIstate data
     stateManager.register('state', this.state);
@@ -53,16 +54,14 @@ export class TodoListApp {
   }
 
   /**
-   * @dev Connects the wallet and constructs a new Session if successful.
+   * @dev Connects the wallet and opens a new Session for the wallet account if successful.
    * Keeps the UI up-to-date on the state of the app as the Session is initialised.
    */
   connectWallet() {
     this.wallet.connect()
       .then(() => {
         // Construct a new session. 
-        this.session = new Session(APP_ID, CHAIN, BUBBLE_PROVIDER, this.wallet);
-        if (!this.session.isNew()) this._initialiseSession();
-        else this._setState(STATES.new);
+        this._openSession(this.wallet.account);
       })
       .catch(error => {
         stateManager.dispatch('error', new Error('Could not connect wallet: '+error.message));
@@ -118,6 +117,20 @@ export class TodoListApp {
       .catch(error => {
         stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
       })  
+  }
+
+  /**
+   * @dev Starts a new session on first connect or whenever the wallet account is changed. Closes
+   * any existing session first, clearing the UI state.
+   */
+  _openSession(account) {
+    if (this.session) {
+      stateManager.dispatch('tasks', []);
+      stateManager.dispatch('error');
+    }
+    this.session = new Session(APP_ID+'-'+account.slice(2), CHAIN, BUBBLE_PROVIDER, this.wallet);
+    if (!this.session.isNew()) this._initialiseSession();
+    else this._setState(STATES.new);
   }
 
   /**

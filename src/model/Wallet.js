@@ -3,6 +3,7 @@
 // file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 
 import Web3 from 'web3';
+import { EventManager } from './utils/EventManager';
 
 const STATES = {
   disconnected: 'disconnected',
@@ -15,26 +16,33 @@ const STATES = {
 export class Wallet {
 
   state = STATES.disconnected;
+  account;
   provider;
+  listeners = new EventManager(['account-changed']);
 
   constructor() {
     this.provider = window.ethereum;
+    this._handleAccountsChanged = this._handleAccountsChanged.bind(this);
+    this.on = this.listeners.on.bind(this.listeners);
+    this.off = this.listeners.off.bind(this.listeners);
   }
 
   async connect() {
+    if (this.state !== STATES.disconnected) return Promise.reject('already connected');
     if (!this.provider) return Promise.reject('metamask is not installed');
-    await this.provider.request({ method: 'eth_requestAccounts' });
+    const accounts = await this.provider.request({ method: 'eth_requestAccounts' });
+    this.account = accounts[0];
+    this.provider.on('accountsChanged', this._handleAccountsChanged);
     this.state = STATES.connected;
   }
 
   async disconnect() {
+    this.provider.off('accountsChanged', this._handleAccountsChanged);
     this.state = STATES.disconnected;
     return Promise.resolve();
   }
 
   async deploy(chain, abi, bytecode, args=[], options={}) {
-
-    const accounts = await this.provider.request({ method: 'eth_requestAccounts' });
 
     // switch chain if necessary
     if (this.provider.networkVersion !== ''+chain) {
@@ -52,7 +60,7 @@ export class Wallet {
     const receipt = 
       await web3Contract.deploy({ data: bytecode, arguments: args })
       .send({
-        from: accounts[0],
+        from: this.account,
         gas: 1500000,
         gasPrice: '100000000',
         ...options
@@ -61,6 +69,12 @@ export class Wallet {
     // return the contract address
     return receipt.options.address;
 
+  }
+
+  _handleAccountsChanged(accounts) {
+    console.trace('wallet account changed', accounts[0]);
+    this.account = accounts[0];
+    this.listeners.notifyListeners('account-changed', this.account);
   }
 
 }
