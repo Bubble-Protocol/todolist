@@ -21,6 +21,16 @@ import { TaskList } from './TaskList';
 export class Session {
 
   /**
+   * The session private key, held in local storage and read on construction.
+   */
+  key;
+
+  /**
+   * The session's off-chain bubble id. Held in local storage and read on construction.
+   */
+  bubbleId;
+
+  /**
    * TaskList managed by this Session. It is constructed and initialised in the `initialise` method.
    */
   taskList;
@@ -42,14 +52,15 @@ export class Session {
 
   /**
    * Initialises the Task List deploying the smart contract and constructing the bubble if
-   * required. The state of construction is determined by the properties of the local saved state.
+   * required. The state of construction is determined by the properties read from the local saved 
+   * state during construction.
    * 
-   * I.e.: 
+   * i.e.: 
    * 
-   *   state = null                     ->  New, so construct application key
-   *   state.bubbleId = null            ->  Smart contract has not yet been deployed, so deploy it
-   *   state.bubbleId.provider = null   ->  Bubble has not yet been created so create it.
-   *   state.bubbleId.provider != null  ->  Fully constructed so initialise the TaskList
+   *   this.key = null                 ->  New, so construct application key
+   *   this.bubbleId = null            ->  Smart contract has not yet been deployed, so deploy it
+   *   this.bubbleId.provider = null   ->  Off-chain bubble has not yet been created so create it.
+   *   this.bubbleId.provider != null  ->  Fully constructed so initialise the TaskList
    *  
    */
   async initialise() {
@@ -124,6 +135,7 @@ export class Session {
    * @dev Return the current tasks from taskList
    */
   getTasks() {
+    if (!this.taskList) return Promise.reject('session not initialised');
     return this.taskList.tasks;
   }
 
@@ -131,6 +143,7 @@ export class Session {
    * @dev Return the current taskList's bubble id
    */
   getBubbleId() {
+    if (!this.taskList) return Promise.reject('session not initialised');
     return this.taskList.bubble.contentId;
   }
 

@@ -8,9 +8,21 @@ import { ecdsa } from '@bubble-protocol/crypto';
  */
 export class TaskList {
 
+  /**
+   * The off-chain bubble, instance of the Bubble class.
+   */
   bubble;
+
+  /**
+   * Local copy of the task list, read from the bubble during initialisation.
+   */
   tasks = [];
 
+  /**
+   * Constructs the `bubble` object, an instance of the `Bubble` class. Specifies HTTP(S) as the
+   * interface to the off-chain bubble host, and specifies an AESGCM encryption policy to encrypt
+   * all contents with the given encryption key.
+   */
   constructor(bubbleId, signFunction, encryptionKey) {
     assert.isInstanceOf(bubbleId, ContentId, 'bubbleId');
     assert.isFunction(signFunction, 'signFunction');
@@ -28,7 +40,7 @@ export class TaskList {
   }
 
   /**
-   * @dev Reads the task list from the bubble and initialises the tasks array.
+   * @dev Loads the task list from the bubble and initialises the `tasks` array.
    */
   async initialise() {
     console.trace('initialising task list');

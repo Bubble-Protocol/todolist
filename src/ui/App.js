@@ -6,18 +6,23 @@ import { TextBox } from './components/TextBox';
 import { Button } from './components/Button';
 import { CopyTextButton } from "./components/CopyTextButton";
 
-function UI() {
+function App() {
 
+  // Local state data
   const [text, setText] = useState('');
   const [showDetails, toggleDetails] = useState(false);
 
+  // Model state data
   const appState = stateManager.useStateData('state')();
   const appError = stateManager.useStateData('error')();
   const tasks = stateManager.useStateData('tasks')();
   const bubbleId = stateManager.useStateData('bubble-id')();
+
+  // Model api functions
   const taskFunctions = stateManager.useStateData('taskFunctions')();
   const walletFunctions = stateManager.useStateData('walletFunctions')();
 
+  // create a new task then clear the text box
   function newTask() {
     taskFunctions.createTask(text)
       .then(() => setText(''));
@@ -25,31 +30,45 @@ function UI() {
 
   return (
     <div className="App">
+
       <span className="title">Bubble Protocol Todo List Example</span>
-      <div className='taskList'>
-        {appState === 'closed' &&
-          <div>
-            <p className="info-text">
-              Basic example of using Bubble Protocol to provide encrypted off-chain storage for a decentralised application. 
-              In this todo list example, each wallet account has its own list held in an encrypted off-chain bubble. 
-            </p>
-            <p className="info-text">
-              Connect your wallet to create a todo list (requires a smart contract deployment).
-            </p>
-            <p className="info-text">
-              This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true">Base Goerli testnet</a>.  Requires Metamask.
-            </p>
-          </div>
-        }
-        {appState === 'closed' && <span className="text-button" onClick={walletFunctions.connect} >Connect Wallet</span>}
-        {appState === 'new' && <div className="text-button" onClick={walletFunctions.createTodoList} >Create TODO List</div>}
-        {appState === 'initialising' && <div className="loader"></div>}
-        {tasks.map(task => <Task key={task.fileId} text={task.text} done={task.done} toggleDone={() => taskFunctions.toggleDone(task)} deleteTask={() => taskFunctions.deleteTask(task)} />)}
-      </div>
+
+      {/* App state dependent UI */}
+      {appState === 'closed' &&
+        <div>
+          <p className="info-text">
+            Basic example of using Bubble Protocol to provide encrypted off-chain storage for a decentralised application. 
+            In this todo list example, each wallet account has its own list held in an encrypted off-chain bubble. 
+          </p>
+          <p className="info-text">
+            Connect your wallet to create a todo list (requires a smart contract deployment).
+          </p>
+          <p className="info-text">
+            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true">Base Goerli testnet</a>.  Requires Metamask.
+          </p>
+        </div>
+      }
+      {appState === 'closed' && <span className="text-button" onClick={walletFunctions.connect} >Connect Wallet</span>}
+      {appState === 'new' && <div className="text-button" onClick={walletFunctions.createTodoList} >Create TODO List</div>}
+      {appState === 'initialising' && <div className="loader"></div>}
+
+      {/* The task list */}
+      {tasks.length > 0 &&
+        <div className='taskList'>
+          {tasks.map(task => <Task key={task.fileId} text={task.text} done={task.done} toggleDone={() => taskFunctions.toggleDone(task)} deleteTask={() => taskFunctions.deleteTask(task)} />)}
+        </div>
+      }
+
+      {/* New Task TextBox and Button */}
       <div className='newTask'>
         <TextBox text={text} onChange={setText} onEnter={newTask} disabled={appState !== 'initialised'} />
         <Button title='New Task' onClick={newTask} disabled={appState !== 'initialised' || text === ''} />
       </div>
+
+      {/* Bubble details */}
+      {bubbleId && !showDetails &&
+        <span className="text-button small-text-button" onClick={() => toggleDetails(true)}>show bubble details</span>
+      } 
       {bubbleId && showDetails &&
         <div className="bubble-details-section">
           <span className="text-button small-text-button" onClick={() => toggleDetails(false)}>hide details</span>
@@ -70,13 +89,13 @@ function UI() {
           <CopyTextButton className="text-button small-text-button" title="copy as DID" copyText={bubbleId.toDID()} />
         </div>
       }
-      {bubbleId && !showDetails &&
-        <span className="text-button small-text-button" onClick={() => toggleDetails(true)}>show bubble details</span>
-      } 
+
+      {/* Error log */}
       {appError && <span className='error-text'>{appError.message}</span>}
+
     </div>
   );
 
 }
 
-export default UI;
+export default App;
