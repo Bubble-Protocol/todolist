@@ -52,7 +52,7 @@ function UI() {
       </div>
       {bubbleId && showDetails &&
         <div className="bubble-details-section">
-          <span className="text-button" onClick={() => toggleDetails(false)}>hide details</span>
+          <span className="text-button small-text-button" onClick={() => toggleDetails(false)}>hide details</span>
           <div className="bubble-details">
             <div className="details-row">
               <span className="details-label">Chain</span>
@@ -71,7 +71,7 @@ function UI() {
         </div>
       }
       {bubbleId && !showDetails &&
-        <span className="text-button" onClick={() => toggleDetails(true)}>show bubble details</span>
+        <span className="text-button small-text-button" onClick={() => toggleDetails(true)}>show bubble details</span>
       } 
       {appError && <span className='error-text'>{appError.message}</span>}
     </div>

@@ -104,10 +104,15 @@ body {
 .details-row .details-text {
   flex: 1;
   font-family: 'Courier New', Courier, monospace;
-  font-size: 16px;
+  font-size: 15px;
   color: rgb(70, 68, 83);
   overflow: hidden;
   word-wrap: break-word;
+}
+
+.details-row a {
+  color: rgb(70, 68, 83);
+  text-decoration-color: rgb(149, 149, 151);
 }
 
 @media only screen and (max-width: 820px) {
