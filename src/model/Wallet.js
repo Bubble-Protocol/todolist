@@ -11,7 +11,8 @@ const STATES = {
 }
 
 /**
- * Wrapper for Metamask.  Provides connect, disconnect and deploy contract functions
+ * Wrapper for Metamask.  Provides connect, disconnect and deploy-contract functions.  Also 
+ * provides an event manager for clients to listen for a change to the wallet account.
  */
 export class Wallet {
 
@@ -37,7 +38,6 @@ export class Wallet {
   }
 
   async disconnect() {
-    this.provider.off('accountsChanged', this._handleAccountsChanged);
     this.state = STATES.disconnected;
     return Promise.resolve();
   }
