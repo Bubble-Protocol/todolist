@@ -21,17 +21,17 @@ import { TaskList } from './TaskList';
 export class Session {
 
   /**
-   * The session private key, held in local storage and read on construction.
+   * @dev The session private key, held in local storage and read on construction.
    */
   key;
 
   /**
-   * The session's off-chain bubble id. Held in local storage and read on construction.
+   * @dev The session's off-chain bubble id. Held in local storage and read on construction.
    */
   bubbleId;
 
   /**
-   * TaskList managed by this Session. It is constructed and initialised in the `initialise` method.
+   * @dev TaskList managed by this Session. It is constructed and initialised in the `initialise` method.
    */
   taskList;
 
@@ -51,7 +51,7 @@ export class Session {
   }
 
   /**
-   * Initialises the Task List deploying the smart contract and constructing the bubble if
+   * @dev Initialises the Task List deploying the smart contract and constructing the bubble if
    * required. The state of construction is determined by the properties read from the local saved 
    * state during construction.
    * 
