@@ -36,7 +36,7 @@ export class TodoListApp {
     this.wallet = new Wallet();
     this.wallet.on('account-changed', this._openSession.bind(this));
 
-    // Register UIstate data
+    // Register UI state data
     stateManager.register('state', this.state);
     stateManager.register('bubble-id');
     stateManager.register('error');
@@ -74,10 +74,7 @@ export class TodoListApp {
    * bubble.  Keeps the UI up-to-date on the state of the app as the Session is initialised.
    */
   async createTodoList() {
-    return this._initialiseSession()
-    .catch(error => {
-      stateManager.dispatch('error', new Error('Could not connect wallet: '+error.message));
-    })
+    return this._initialiseSession();
   }
 
   /**
@@ -103,7 +100,7 @@ export class TodoListApp {
         stateManager.dispatch('tasks', [...this.session.getTasks()]);
       })
       .catch(error => {
-        stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
+        stateManager.dispatch('error', new Error('Failed to update task: '+error.message));
       })  
   }
 
@@ -116,7 +113,7 @@ export class TodoListApp {
         stateManager.dispatch('tasks', [...this.session.getTasks()]);
       })
       .catch(error => {
-        stateManager.dispatch('error', new Error('Failed to write task: '+error.message));
+        stateManager.dispatch('error', new Error('Failed to delete task: '+error.message));
       })  
   }
 
