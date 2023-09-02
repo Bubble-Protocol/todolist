@@ -4,7 +4,14 @@ import { ecdsa } from '@bubble-protocol/crypto';
 
 
 /**
- * Encapsulates a task list and its off-chain bubble.  
+ * Encapsulates a task list and its off-chain bubble.  The bubble's contract is defined by the 
+ * smart contract in `./contracts/TodoListBubble.sol`, which is deployed by the Session class's 
+ * initialise function.
+ * 
+ * Each task is written to the bubble in its own separate file in the root directory (dir 0).
+ * A task's file name is the hash of the task data. All files are encrypted by the encryption 
+ * policy defined in the constructor.  Tasks are sorted based on their file creation date.
+ * 
  */
 export class TaskList {
 
@@ -25,8 +32,6 @@ export class TaskList {
    */
   constructor(bubbleId, signFunction, encryptionKey) {
     assert.isInstanceOf(bubbleId, ContentId, 'bubbleId');
-    assert.isFunction(signFunction, 'signFunction');
-    ecdsa.assert.isPrivateKey(encryptionKey, 'encryptionKey');
     const provider = new bubbleProviders.HTTPBubbleProvider(bubbleId.provider);
     const encryptionPolicy = new encryptionPolicies.AESGCMEncryptionPolicy(encryptionKey);
     this.bubble = new Bubble(bubbleId, provider, signFunction, encryptionPolicy);
