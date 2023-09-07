@@ -1,7 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
+import { WagmiConfig } from 'wagmi';
 import UI from './ui/App.js';
 import { TodoListApp } from './model/App.js';
+import { rainbowKitConfig } from './rainbow-kit.js';
 
 // Config
 const TRACE_ON = true;
@@ -19,6 +22,10 @@ const app = new TodoListApp();
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <UI app={app} />
+    <WagmiConfig config={rainbowKitConfig.wagmiConfig}>
+      <RainbowKitProvider chains={rainbowKitConfig.chains} theme={lightTheme({borderRadius: 'small'})} >
+        <UI app={app} />
+      </RainbowKitProvider>
+    </WagmiConfig>
   </React.StrictMode>
 );

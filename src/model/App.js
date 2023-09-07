@@ -5,10 +5,11 @@
 import { stateManager } from '../state-context';
 import { Wallet } from './Wallet';
 import { Session } from './Session';
+import { baseGoerli } from 'wagmi/chains';
 
 const APP_ID = 'todo-list-example';
 
-const CHAIN = 84531;  // base goerli
+const CHAIN = baseGoerli;
 const BUBBLE_PROVIDER = "https://vault.bubbleprotocol.com/v2/base-goerli";
 
 const STATES = {
@@ -34,7 +35,7 @@ export class TodoListApp {
   constructor() {
     // Construct the wallet and listen for changes to the selected account
     this.wallet = new Wallet();
-    this.wallet.on('account-changed', this._openSession.bind(this));
+    this.wallet.on('account-changed', this._accountChanged.bind(this));
 
     // Register UI state data
     stateManager.register('state', this.state);
@@ -49,24 +50,8 @@ export class TodoListApp {
       deleteTask: this.deleteTask.bind(this)
     });
     stateManager.register('walletFunctions', {
-      connect: this.connectWallet.bind(this),
       createTodoList: this.createTodoList.bind(this),
     });
-  }
-
-  /**
-   * @dev Connects the wallet and opens a new Session for the wallet account if successful.
-   * Keeps the UI up-to-date on the state of the app as the Session is initialised.
-   */
-  connectWallet() {
-    this.wallet.connect()
-      .then(() => {
-        // Construct a new session. 
-        this._openSession(this.wallet.account);
-      })
-      .catch(error => {
-        stateManager.dispatch('error', new Error('Could not connect wallet: '+error.message));
-      })
   }
 
   /**
@@ -117,16 +102,17 @@ export class TodoListApp {
       })  
   }
 
+  _accountChanged(account) {
+    this._closeSession();
+    if (account) this._openSession(account);
+    else this._setState(STATES.closed);
+  }
+
   /**
    * @dev Starts a new session on first connect or whenever the wallet account is changed. Closes
    * any existing session first, clearing the UI state.
    */
   _openSession(account) {
-    if (this.session) {
-      stateManager.dispatch('tasks', []);
-      stateManager.dispatch('bubble-id');
-      stateManager.dispatch('error');
-    }
     this.session = new Session(APP_ID+'-'+account.slice(2), CHAIN, BUBBLE_PROVIDER, this.wallet);
     if (!this.session.isNew()) this._initialiseSession();
     else this._setState(STATES.new);
@@ -147,9 +133,18 @@ export class TodoListApp {
       })
       .catch(error => {
         console.warn(error);
-        this._setState(STATES.failed);
+        this._setState(this.session.isNew() ? STATES.new : STATES.failed);
         stateManager.dispatch('error', error)
       });
+  }
+
+  _closeSession() {
+    if (this.session) {
+      stateManager.dispatch('tasks', []);
+      stateManager.dispatch('bubble-id');
+      stateManager.dispatch('error');
+      this.session = undefined;
+    }
   }
 
   /**
