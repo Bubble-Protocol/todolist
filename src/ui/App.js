@@ -53,7 +53,7 @@ function App() {
             Connect your wallet to create a todo list (requires a smart contract deployment).
           </p>
           <p className="info-text">
-            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true">Base Goerli testnet</a>.  Requires Metamask.
+            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true">Base Goerli testnet</a>.
           </p>
         </div>
       }
