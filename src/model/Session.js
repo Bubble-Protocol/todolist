@@ -40,7 +40,8 @@ export class Session {
    */
   constructor(id, chain, bubbleProvider, wallet) {
     assert.isString(id, 'id');
-    assert.isNumber(chain, 'chain');
+    assert.isObject(chain, 'chain');
+    assert.isNumber(chain.id, 'chain.id');
     assert.isString(bubbleProvider, 'bubbleProvider');
     assert.isObject(wallet, 'wallet');
     this.id = id;
@@ -84,7 +85,7 @@ export class Session {
         [this.key.address]
       );
       this.bubbleId = {
-        chain: this.chain,
+        chain: this.chain.id,
         contract: address
       }
       this._saveState();
@@ -151,7 +152,7 @@ export class Session {
    * @dev Returns `true` if the smart contract has not yet been deployed
    */
   isNew() {
-    return this.bubbleId === undefined;
+    return this.bubbleId === undefined || this.bubbleId.contract === undefined;
   }
 
   /**
@@ -160,6 +161,7 @@ export class Session {
   _loadState() {
     const stateJSON = window.localStorage.getItem(this.id);
     const stateData = stateJSON ? JSON.parse(stateJSON) : {};
+    console.trace('loaded state', stateData);
     this.key = stateData.key ? new ecdsa.Key(stateData.key) : undefined;
     this.bubbleId = stateData.bubbleId;
   }

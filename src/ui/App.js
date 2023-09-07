@@ -5,6 +5,7 @@ import { Task } from './components/Task';
 import { TextBox } from './components/TextBox';
 import { Button } from './components/Button';
 import { CopyTextButton } from "./components/CopyTextButton";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 function App() {
 
@@ -28,9 +29,17 @@ function App() {
       .then(() => setText(''));
   }
 
+  function formatError(error) {
+    return error.details || error.message || error;
+  }
+
   return (
     <div className="App">
 
+      <div className="wallet-buttons">
+        <ConnectButton showBalance={false} />
+      </div>
+      
       <span className="title">Bubble Protocol Todo List Example</span>
 
       {/* App state dependent UI */}
@@ -48,7 +57,6 @@ function App() {
           </p>
         </div>
       }
-      {appState === 'closed' && <span className="text-button" onClick={walletFunctions.connect} >Connect Wallet</span>}
       {appState === 'new' && <div className="text-button" onClick={walletFunctions.createTodoList} >Create TODO List</div>}
       {appState === 'initialising' && <div className="loader"></div>}
 
@@ -91,7 +99,7 @@ function App() {
       }
 
       {/* Error log */}
-      {appError && <span className='error-text'>{appError.message}</span>}
+      {appError && <span className='error-text'>{formatError(appError)}</span>}
 
     </div>
   );
