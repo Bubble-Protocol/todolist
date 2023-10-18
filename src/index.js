@@ -1,3 +1,7 @@
+// Copyright (c) 2023 Bubble Protocol
+// Distributed under the MIT software license, see the accompanying
+// file LICENSE or http://www.opensource.org/licenses/mit-license.php.
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RainbowKitProvider, lightTheme } from '@rainbow-me/rainbowkit';
@@ -6,19 +10,24 @@ import UI from './ui/App.js';
 import { TodoListApp } from './model/App.js';
 import { rainbowKitConfig } from './rainbow-kit.js';
 
-// Config
+/**
+ * @dev Add trace and debug commands to the console. Use `console.stackTrace` to dump the stack.
+ */
 const TRACE_ON = true;
 const DEBUG_ON = true;
 
-// Add trace and debug log options
 console.stackTrace = console.trace;
 console.trace = TRACE_ON ? Function.prototype.bind.call(console.info, console, "[trace]") : function() {};
 console.debug = DEBUG_ON ? Function.prototype.bind.call(console.info, console, "[debug]") : function() {};
 
-// Construct the model
+/**
+ * @dev Construct the model
+ */
 const app = new TodoListApp();
 
-// Render the ui
+/**
+ * @dev Render the UI
+ */
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>

@@ -2,7 +2,7 @@
 // Distributed under the MIT software license, see the accompanying
 // file LICENSE or http://www.opensource.org/licenses/mit-license.php.
 
-import { getAccount, watchAccount, getWalletClient, getPublicClient } from 'wagmi/actions';
+import { watchAccount, getWalletClient, getPublicClient } from 'wagmi/actions';
 import { EventManager } from './utils/EventManager';
 
 const STATES = {
@@ -11,8 +11,8 @@ const STATES = {
 }
 
 /**
- * Wrapper for Metamask.  Provides connect, disconnect and deploy-contract functions.  Also 
- * provides an event manager for clients to listen for a change to the wallet account.
+ * Wrapper for a wagmi wallet.  Provides a deploy contract function and an 
+ * event manager for clients to listen for a change to the wallet account.
  */
 export class Wallet {
 

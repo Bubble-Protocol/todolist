@@ -1,3 +1,7 @@
+// Copyright (c) 2023 Bubble Protocol
+// Distributed under the MIT software license, see the accompanying
+// file LICENSE or http://www.opensource.org/licenses/mit-license.php.
+
 import React, { useState } from "react";
 import './App.css';
 import { stateManager } from '../state-context';
@@ -6,6 +10,11 @@ import { TextBox } from './components/TextBox';
 import { Button } from './components/Button';
 import { CopyTextButton } from "./components/CopyTextButton";
 import { ConnectButton } from '@rainbow-me/rainbowkit';
+
+
+/**
+ * @dev The main application screen
+ */
 
 function App() {
 

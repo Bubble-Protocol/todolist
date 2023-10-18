@@ -1,3 +1,7 @@
+// Copyright (c) 2023 Bubble Protocol
+// Distributed under the MIT software license, see the accompanying
+// file LICENSE or http://www.opensource.org/licenses/mit-license.php.
+
 import { bubbleProviders, encryptionPolicies, Bubble, toFileId } from '@bubble-protocol/client';
 import { ContentId, assert } from '@bubble-protocol/core';
 import { ecdsa } from '@bubble-protocol/crypto';
@@ -74,10 +78,8 @@ export class TaskList {
       done: false
     }
     task.fileId = ecdsa.hash(JSON.stringify(task));
-    return this._saveTask(task)
-      .then(() => {
-        this.tasks.push(task);
-      });
+    await this._saveTask(task);
+    this.tasks.push(task);
   }
 
   /**
@@ -92,10 +94,9 @@ export class TaskList {
    * @dev Promises to delete the given task from tasks array and the bubble.
    */
   async deleteTask(task) {
-    return this.bubble.delete(task.fileId)
-    .then(() => {
-      this.tasks = this.tasks.filter(t => t.fileId !== task.fileId);
-    })
+    console.trace('deleting task', task);
+    await this.bubble.delete(task.fileId);
+    this.tasks = this.tasks.filter(t => t.fileId !== task.fileId);
   }
 
   /**
