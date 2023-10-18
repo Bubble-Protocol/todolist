@@ -55,14 +55,14 @@ function App() {
       {appState === 'closed' &&
         <div>
           <p className="info-text">
-            Basic example of using Bubble Protocol to provide encrypted off-chain storage for a decentralised application. 
-            In this todo list example, each wallet account has its own list held in an encrypted off-chain bubble. 
+            Basic example of using Bubble Protocol to provide private, encrypted off-chain storage for a decentralised application. 
+            In this todo list example, each wallet account has its own list held in an encrypted off-chain bubble that only the user can access. 
           </p>
           <p className="info-text">
-            Connect your wallet to create a todo list (requires a smart contract deployment).
+            Connect your wallet to create a todo list (requires a testnet smart contract deploy).
           </p>
           <p className="info-text">
-            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true">Base Goerli testnet</a>.
+            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true" target="_blank">Base Goerli testnet</a>.
           </p>
         </div>
       }
@@ -96,7 +96,7 @@ function App() {
             </div>
             <div className="details-row">
               <span className="details-label">Contract</span>
-              <span className="details-text"><a href={"https://goerli.basescan.org/address/"+bubbleId.contract}>{bubbleId.contract}</a></span>
+              <span className="details-text"><a href={"https://goerli.basescan.org/address/"+bubbleId.contract} target="_blank">{bubbleId.contract}</a></span>
             </div>
             <div className="details-row">
               <span className="details-label">Provider</span>
@@ -107,6 +107,9 @@ function App() {
         </div>
       }
 
+      {/* View code */}
+      <a className="text-button small-text-button" href="https://github.com/Bubble-Protocol/todolist" target="_blank">view source code</a>
+ 
       {/* Error log */}
       {appError && <span className='error-text'>{formatError(appError)}</span>}
 
