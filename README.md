@@ -1,20 +1,35 @@
 # Bubble Protocol Todo List Example
 
-Basic example of a decentralised application with private, encrypted off-chain data storage provided by [Bubble Protocol](https://github.com/Bubble-Protocol/bubble-sdk).  It's built using React and uses the Base Goerli testnet.
+Basic demonstration of using private, encrypted off-chain storage in a decentralised application using [Bubble Protocol](https://github.com/Bubble-Protocol/bubble-sdk). 
 
-Each connected wallet account has its own separate todo list.  The user can add, delete and toggle tasks as 'done'.
+This dApp is built using React and the Base Goerli testnet.  
 
-This example uses the basic features of Bubble Protocol to demonstrate using an off-chain [bubble](https://github.com/Bubble-Protocol/bubble-sdk#bubbles) as an encrypted backup of the dApp data, in this case the todo list.  Each todo list has its own bubble that only the user can access and decrypt.
+It is available to [try online here](https://bubbleprotocol.com/todolist).
 
-The dApp is available to [try online here](https://bubbleprotocol.com/todolist).
+## UI Overview
+
+1. User connects their wallet
+2. User clicks the *Create* button to create their TODO list (one list per wallet account).
+3. User is redirected to their wallet to deploy the TODO list's bubble. (Wallet deploys the bubble smart contract and the app constructs the bubble on the remote *vault.bubbleprotocol.com* server).
+4. User can add and delete tasks, and mark them as done.
+5. Switching wallet accounts automatically switches between TODO lists.
 
 ## The DApp
 
+This example uses the basic *create*, *encryption*, *read* and *write* features of Bubble Protocol to construct an off-chain [bubble](https://github.com/Bubble-Protocol/bubble-sdk#bubbles) and use it as an encrypted backup of the dApp data, in this case the todo list.  
+
+When the user connects their wallet, the app constructs a new 'session' with an off-chain bubble that only the user can access and decrypt.
+
+Go straight to the [`TaskList`](./src/model/TaskList.js) class within the model to see how an encrypted bubble is constructed, read and written. 
+
+### Architecture
+
 The dApp is structured into `ui` and `model`.  The model contains four classes:
-- `TaskList` - encapsulates a session's task list and uses a bubble to store the list off-chain.  This is where you will find most of the calls to Bubble Protocol.
-- `App.js` - the main application entry point and gateway for the UI. Constructs and manages Sessions. Communication between UI and model is routed through the [StateManager](src/model/utils/StateManager.js).
-- `Session` - each wallet account has its own task list and bubble. The Session class maintains the bubble ID and session's private key in local storage and manages the task list initialisation process, including deploying the smart contract when the task list is new.
-- `Wallet` - encapsulates a connection to the user's wallet.
+
+- [`TaskList`](./src/model/TaskList.js) - encapsulates a session's task list and bubble. Uses the bubble to store the list off-chain.  This is where you will find the calls to Bubble Protocol.
+- [`App`](./src/model/App.js) - the main application entry point and gateway for the UI. Constructs and manages Sessions. Communication between UI and model is routed through the [`StateManager`](src/model/utils/StateManager.js).
+- [`Session`](./src/model/Session.js) - each wallet account has its own task list and bubble. The Session class maintains the bubble ID and session's private key in local storage and manages the task list initialisation process, including deploying the smart contract when the task list is new.
+- [`Wallet`](./src/model/Wallet.js) - encapsulates a connection to the user's wallet.
 
 ## Install & Run This dApp
 
