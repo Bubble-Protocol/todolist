@@ -6,11 +6,11 @@ This dApp is built using React and the Base Goerli testnet.
 
 It is available to [try online here](https://bubbleprotocol.com/todolist).
 
-## UI Overview
+## UX Overview
 
 1. User connects their wallet
 2. User clicks the *Create* button to create their TODO list (one list per wallet account).
-3. User is redirected to their wallet to deploy the TODO list's bubble. (Wallet deploys the bubble smart contract and the app constructs the bubble on the remote *vault.bubbleprotocol.com* server).
+3. User is redirected to their wallet to deploy the TODO list's bubble. (Wallet deploys the [bubble smart contract](./src/model/contracts/TodoListBubble.sol) and the app constructs the bubble on the remote [*vault.bubbleprotocol.com*](https://vault.bubbleprotocol.com) server).
 4. User can add and delete tasks, and mark them as done.
 5. Switching wallet accounts automatically switches between TODO lists.
 
