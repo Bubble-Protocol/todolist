@@ -24,12 +24,18 @@ Go straight to the [`TaskList`](./src/model/TaskList.js) class within the model 
 
 ### Architecture
 
-The dApp is structured into `ui` and `model`.  The model contains four classes:
+![Architecture](./architecture.png)
+
+The dApp is structured into `ui` and `model`, with separate folders for each within `src`.  
+
+The `ui` is a basic React app with a single page. It sends user actions to the model via functions shared by the model through the [`StateManager`](src/model/utils/StateManager.js).
+
+The `model` contains four classes:
 
 - [`TaskList`](./src/model/TaskList.js) - encapsulates a session's task list and bubble. Uses the bubble to store the list off-chain.  This is where you will find the calls to Bubble Protocol.
-- [`App`](./src/model/App.js) - the main application entry point and gateway for the UI. Constructs and manages Sessions. Communication between UI and model is routed through the [`StateManager`](src/model/utils/StateManager.js).
+- [`App`](./src/model/App.js) - the model's entry point, and gateway for the UI. Constructs and manages Sessions based on wallet account changes reported by the Wallet. Communication between UI and model is routed through the [`StateManager`](src/model/utils/StateManager.js).
 - [`Session`](./src/model/Session.js) - each wallet account has its own task list and bubble. The Session class maintains the bubble ID and session's private key in local storage and manages the task list initialisation process, including deploying the smart contract when the task list is new.
-- [`Wallet`](./src/model/Wallet.js) - encapsulates a connection to the user's wallet.
+- [`Wallet`](./src/model/Wallet.js) - encapsulates a connection to the user's wallet. Wallet connectivity is provided by the [RainbowKit](https://www.rainbowkit.com/) library (a UI wrapper for [wagmi](https://wagmi.sh/) and [viem](https://viem.sh/))
 
 ## Install & Run This dApp
 
