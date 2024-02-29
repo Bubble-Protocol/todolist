@@ -2,7 +2,7 @@
 
 Basic demonstration of using private, encrypted off-chain storage in a decentralised application using [Bubble Protocol](https://github.com/Bubble-Protocol/bubble-sdk). 
 
-This dApp is built using React and the Base Goerli testnet.  
+This dApp is built using React and the Polygon network.  
 
 It is available to [try online here](https://bubbleprotocol.com/todolist).
 

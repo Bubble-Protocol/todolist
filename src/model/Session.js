@@ -7,6 +7,8 @@ import { ecdsa } from '@bubble-protocol/crypto';
 import { ContentId, assert } from '@bubble-protocol/core';
 import { TaskList } from './TaskList';
 
+const STATE_VERSION = 2;
+
 /**
  * A Session is an instance of the app with a locally saved state. The local device can support
  * multiple sessions allowing the user to have different TODO Lists for different wallet accounts.
@@ -162,6 +164,14 @@ export class Session {
     const stateJSON = window.localStorage.getItem(this.id);
     const stateData = stateJSON ? JSON.parse(stateJSON) : {};
     console.trace('loaded state', stateData);
+    switch (stateData.version) {
+      case undefined:
+        // old base-goerli session. Base goerli has been shut down so delete any bubble
+        console.log('upgrading state from version 1 to version 2. Old bubble id:', JSON.stringify(stateData.bubbleId));
+        stateData.bubbleId = undefined;
+      default:
+        // nothing to do
+    }
     this.key = stateData.key ? new ecdsa.Key(stateData.key) : undefined;
     this.bubbleId = stateData.bubbleId;
   }
@@ -171,6 +181,7 @@ export class Session {
    */
   _saveState() {
     const stateData = {
+      version: STATE_VERSION,
       key: this.key.privateKey,
       bubbleId: this.bubbleId
     };

@@ -62,7 +62,7 @@ function App() {
             Connect your wallet to create a todo list (requires a testnet smart contract deploy).
           </p>
           <p className="info-text">
-            This example runs on the <a href="https://chainlist.org/?search=base+goerl&testnets=true" target="_blank">Base Goerli testnet</a>.
+            This example runs on the <a href="https://chainlist.org/?search=polygon" target="_blank">Polygon Network</a>.
           </p>
         </div>
       }
@@ -96,7 +96,7 @@ function App() {
             </div>
             <div className="details-row">
               <span className="details-label">Contract</span>
-              <span className="details-text"><a href={"https://goerli.basescan.org/address/"+bubbleId.contract} target="_blank">{bubbleId.contract}</a></span>
+              <span className="details-text"><a href={"https://polygonscan.com/address/"+bubbleId.contract} target="_blank">{bubbleId.contract}</a></span>
             </div>
             <div className="details-row">
               <span className="details-label">Provider</span>

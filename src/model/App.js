@@ -5,7 +5,7 @@
 import { stateManager } from '../state-context';
 import { Wallet } from './Wallet';
 import { Session } from './Session';
-import { baseGoerli } from 'wagmi/chains';
+import { polygon } from 'wagmi/chains';
 
 /**
  * @dev ID used to prefix all local storage entries
@@ -15,12 +15,12 @@ const APP_ID = 'todo-list-example';
 /**
  * @dev Blockchain ID
  */
-const CHAIN = baseGoerli;
+const CHAIN = polygon;
 
 /**
  * @dev Remote bubble server that hosts all task list bubbles
  */
-const BUBBLE_PROVIDER = "https://vault.bubbleprotocol.com/v2/base-goerli";
+const BUBBLE_PROVIDER = "https://vault.bubbleprotocol.com/v2/polygon";
 
 /**
  * @dev Application state enum. @See the `state` property below.
